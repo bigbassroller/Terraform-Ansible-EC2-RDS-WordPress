@@ -43,7 +43,7 @@
 
 - name: Enable periodic updates
   copy:
-    src: ../files/secure_server/10periodic
+    src: ../files/10periodic
     dest: /etc/apt/apt.conf.d/10periodic
     owner: root
     group: root
