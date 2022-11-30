@@ -1,3 +1,8 @@
+variable "region" {
+  type    = string
+  default = "us-west-1"
+}
+
 variable "vpc_cidr" {
   type    = string
   default = "10.123.0.0/16"
@@ -98,3 +103,9 @@ variable "github_repo" {
   type        = string
   description = "Github repo ex: Spoon-Knife"
 }
+
+
+
+
+
+

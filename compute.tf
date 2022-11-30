@@ -77,16 +77,17 @@ resource "aws_instance" "srw_main" {
   root_block_device {
     volume_size = var.main_vol_size
   }
+  
   tags = {
     Name = "srw-main-${random_id.srw_node_id[count.index].dec}"
   }
 
   provisioner "local-exec" {
-    command = "printf '\n${self.public_ip}' >> aws_hosts && aws ec2 wait instance-status-ok --instance-ids ${self.id} --region us-west-1"
+    command = "printf '\n${self.public_ip}' >> aws_hosts && aws ec2 wait instance-status-ok --instance-ids ${self.id} --region ${var.region}"
   }
 
   provisioner "local-exec" {
-    command = "printf '\nubuntu@${data.aws_eip.srw_eip.public_ip}' >> hosts.txt && aws ec2 wait instance-status-ok --instance-ids ${self.id} --region us-west-1"
+    command = "printf '\nubuntu@${data.aws_eip.srw_eip.public_ip}' >> hosts.txt && aws ec2 wait instance-status-ok --instance-ids ${self.id} --region ${var.region}"
   }
 
   provisioner "local-exec" {
