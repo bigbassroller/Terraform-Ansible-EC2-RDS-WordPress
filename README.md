@@ -30,7 +30,7 @@ We need a domain name and an Elastic IP ready to use.
 1. Go to EC2 and navigate to "**Elastic IPs**" and click "**Allocate Elastic IP address**". Make note of the **AllocatedIPv4** address and **Allocation ID**.
 2. Next go to Route 53 and navigate to "**Hosted zones**" then click "**Create hosted zone**". 
 3. After creating the zone add an **'A' record** that points to the **AllocatedIPv4** from the **EC2 Elastic IP**. 
-4. The last step is to go to your domain registar/DNS provider and create an 'A' record that also points to the **AllocatedIPv4** from the **EC2 Elastic IP**.
+4. The last step is to go to your **domain registar/DNS provider** and create an **'A' record** that also points to the **AllocatedIPv4** from the **EC2 Elastic IP**.
 
 ### Configure Prod Vars    
 Now we are going to configure our prod.tfvars. 
