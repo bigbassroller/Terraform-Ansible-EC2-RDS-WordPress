@@ -102,7 +102,7 @@ resource "null_resource" "secure_server" {
   depends_on = [aws_instance.srw_main, aws_eip_association.srw_eip_assoc]
 
   provisioner "local-exec" {
-    command = "ansible-playbook -i hosts.txt --key-file /home/ubuntu/.ssh/devops_rsa playbooks/secure_server.yml"
+    command = "export ANSIBLE_HOST_KEY_CHECKING=False && ansible-playbook -i hosts.txt --key-file /home/ubuntu/.ssh/devops_rsa playbooks/secure_server.yml"
   }
 }
 
