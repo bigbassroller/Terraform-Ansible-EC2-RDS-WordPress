@@ -1,6 +1,7 @@
 # Terraform, Ansible and WordPress on EC2 Ubuntu
 
 ## Prerequisite
+An Ubuntu instance with **aws_credentials** installed **/home/ubuntu/.aws/credentials**. Terraform v1.3.5, and Ansible 2.9.27 installed. 
 
 ### Github preparation
 1. On you local machine create a directory for your WordPress site: 
@@ -24,16 +25,21 @@ git branch -m master main
  - On the next screen copy your created token in a safe place and add it to `prod.tfvars`.
 
 ### AWS preparation
-6. Have a domain ready to use
-Go to EC2 and navigate to "Elastic IPs" and click "Allocate Elastic IP address" and make note of the AllocatedIPv4 address.
-    Next go to Route 53 and navigate to "Hosted zones" then click "Create hosted zone". After creating the zone add an 'A' record that points to the EIP Address  ex: '54.200.80.70'. The last step is to go to your domain registar/DNS provider and create an 'A' record that also points to the EIP address.
+We need a domain name and an Elastic IP ready to use.
+1. Go to EC2 and navigate to "**Elastic IPs**" and click "**Allocate Elastic IP address**". Make note of the **AllocatedIPv4** address and **Allocation ID**.
+2. Next go to Route 53 and navigate to "**Hosted zones**" then click "**Create hosted zone**". 
+3. After creating the zone add an **'A' record** that points to the **AllocatedIPv4** from the **EC2 Elastic IP**. 
+4. The last step is to go to your domain registar/DNS provider and create an 'A' record that also points to the **AllocatedIPv4** from the **EC2 Elastic IP**.
 
-    Now we are going to configure our prod.tfvars. First add your a unique DB password that will be used for the RDS instance. Next add the allocation_id from the EIP. 
-
-ssh -i ~/.ssh/devops_rsa ubuntu@54.177.171.4
-    To log into VM 
-    `ssh -i ~/.ssh/devops_rsa ubuntu@54.176.168.110`
-
+### Configure Prod Vars    
+Now we are going to configure our prod.tfvars. 
+1. First add your a unique DB password that will be used for the RDS instance. 
+2. Next add the allocation_id from the EIP. 
+3. Add Personal access token
+4. Add Github username
+5. Name of existing Github repo
+6. An email address for Letsencrypt to use
+7. The region you wish to deploy to
 
 We are now ready to let things rip. 
 First run `terraform init` and lets test things out with a `terraform plan -var-file="prod.tfvars"`
