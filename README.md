@@ -1,7 +1,8 @@
 # Terraform, Ansible and WordPress on EC2 Ubuntu
 
 ## Prerequisite
-An Ubuntu instance with **aws_credentials** installed **/home/ubuntu/.aws/credentials**. **Terraform v1.3.5**, and **Ansible 2.9.27** installed. 
+1. An Ubuntu instance with **aws_credentials** installed inside **/home/ubuntu/.aws/credentials** directory.
+2. **Terraform v1.3.5**, and **Ansible 2.9.27** installed. 
 
 ### Github preparation
 1. On you local machine create a directory for your WordPress site: 
