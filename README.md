@@ -34,8 +34,8 @@ We need a domain name and an Elastic IP ready to use.
 
 ### Configure Prod Vars    
 Now we are going to configure our prod.tfvars. 
-1. First add your a unique DB password that will be used for the RDS instance. 
-2. Next add the allocation_id from the EIP. 
+1. First add your a unique DB password that will be used for the RDS instance
+2. Next add the allocation_id from the EIP
 3. Add Personal access token
 4. Add Github username
 5. Name of existing Github repo
