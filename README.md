@@ -1,7 +1,7 @@
 # Terraform, Ansible and WordPress on EC2 Ubuntu
 
 ## Prerequisite
-An Ubuntu instance with **aws_credentials** installed **/home/ubuntu/.aws/credentials**. Terraform v1.3.5, and Ansible 2.9.27 installed. 
+An Ubuntu instance with **aws_credentials** installed **/home/ubuntu/.aws/credentials**. **Terraform v1.3.5**, and **Ansible 2.9.27** installed. 
 
 ### Github preparation
 1. On you local machine create a directory for your WordPress site: 
@@ -41,5 +41,8 @@ Now we are going to configure our prod.tfvars.
 6. An email address for Letsencrypt to use
 7. The region you wish to deploy to
 
+### Let rip
 We are now ready to let things rip. 
-First run `terraform init` and lets test things out with a `terraform plan -var-file="prod.tfvars"`
+1. Ready, first run `terraform init` 
+2. Aim, test things out with a `terraform plan -var-file="prod.tfvars"`
+3. Fire! `terraform apply -auto-approve -var-file="prod.tfvars"`
