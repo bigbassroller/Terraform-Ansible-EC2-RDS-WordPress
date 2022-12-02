@@ -106,7 +106,7 @@ resource "aws_instance" "srw_main" {
 resource "null_resource" "main_playbook" {
   
   provisioner "local-exec" {
-    command = "export ANSIBLE_HOST_KEY_CHECKING=False && ansible-playbook -i hosts.txt --key-file /home/ubuntu/.ssh/devops_rsa playbooks/main_playbook.yml -vvv"
+    command = "export ANSIBLE_HOST_KEY_CHECKING=False && ansible-playbook -i hosts.txt --key-file /home/ubuntu/.ssh/devops_rsa playbooks/main-playbook.yml -vvv"
   }
 
   depends_on = [aws_instance.srw_main]
