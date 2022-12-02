@@ -104,18 +104,19 @@ resource "aws_instance" "srw_main" {
 }
 
 resource "null_resource" "secure_server" {
-  depends_on = [aws_eip_association.srw_eip_assoc]
   
   provisioner "local-exec" {
     command = "export ANSIBLE_HOST_KEY_CHECKING=False && ansible-playbook -i hosts.txt --key-file /home/ubuntu/.ssh/devops_rsa playbooks/secure_server.yml"
   }
+
+  depends_on = [aws_instance.srw_main]
 }
 
 resource "null_resource" "install_nginx" {
   depends_on = [null_resource.secure_server]
 
   provisioner "local-exec" {
-    command = "ansible-playbook -i hosts.txt --key-file /home/ubuntu/.ssh/devops_rsa playbooks/install_nginx.yml"
+    command = "export ANSIBLE_HOST_KEY_CHECKING=False && ansible-playbook -i hosts.txt --key-file /home/ubuntu/.ssh/devops_rsa playbooks/install_nginx.yml"
   }
 }
 
@@ -123,7 +124,7 @@ resource "null_resource" "install_php" {
   depends_on = [null_resource.install_nginx]
 
   provisioner "local-exec" {
-    command = "ansible-playbook -i hosts.txt --key-file /home/ubuntu/.ssh/devops_rsa playbooks/install_php.yml"
+    command = "export ANSIBLE_HOST_KEY_CHECKING=False && ansible-playbook -i hosts.txt --key-file /home/ubuntu/.ssh/devops_rsa playbooks/install_php.yml"
   }
 }
 
@@ -131,7 +132,7 @@ resource "null_resource" "provision_ssl_certificates" {
   depends_on = [null_resource.install_php]
 
   provisioner "local-exec" {
-    command = "ansible-playbook -i hosts.txt --key-file /home/ubuntu/.ssh/devops_rsa playbooks/provision_ssl_certificates.yml --extra-vars '${local.ansible_vars}'"
+    command = "export ANSIBLE_HOST_KEY_CHECKING=False && ansible-playbook -i hosts.txt --key-file /home/ubuntu/.ssh/devops_rsa playbooks/provision_ssl_certificates.yml --extra-vars '${local.ansible_vars}'"
   }
 }
 
@@ -139,7 +140,7 @@ resource "null_resource" "install_wordpress" {
   depends_on = [null_resource.provision_ssl_certificates]
 
   provisioner "local-exec" {
-    command = "ansible-playbook -i hosts.txt --key-file /home/ubuntu/.ssh/devops_rsa playbooks/install_wordpress.yml --extra-vars '${local.ansible_vars}'"
+    command = "export ANSIBLE_HOST_KEY_CHECKING=False && ansible-playbook -i hosts.txt --key-file /home/ubuntu/.ssh/devops_rsa playbooks/install_wordpress.yml --extra-vars '${local.ansible_vars}'"
   }
   # triggers = {
   #   always_run = timestamp()
@@ -150,6 +151,8 @@ resource "aws_eip_association" "srw_eip_assoc" {
   count         = var.main_instance_count
   instance_id   = aws_instance.srw_main[count.index].id
   allocation_id = data.aws_eip.srw_eip.id
+
+  depends_on = [aws_instance.srw_main]
 }
 
 data "aws_eip" "srw_eip" {
