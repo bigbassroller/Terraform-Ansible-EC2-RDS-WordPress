@@ -27,20 +27,22 @@ git branch -m master main
 
 ### AWS preparation
 We need a domain name and an Elastic IP ready to use.
-1. Go to EC2 and navigate to "**Elastic IPs**" and click "**Allocate Elastic IP address**". Make note of the **AllocatedIPv4** address and **Allocation ID**.
+**IMPORTANT: Make sure your Elastic IP is in the same AWS region you are deploying to in prod.tfvars**
+1. Go to EC2 and navigate to "**Elastic IPs**" and click "**Allocate Elastic IP address**". Make note of the **AllocatedIPv4** address and **Allocation ID**. 
 2. Next go to Route 53 and navigate to "**Hosted zones**" then click "**Create hosted zone**". 
 3. After creating the zone add an **'A' record** that points to the **AllocatedIPv4** from the **EC2 Elastic IP**. 
 4. The last step is to go to your **domain registar/DNS provider** and create an **'A' record** that also points to the **AllocatedIPv4** from the **EC2 Elastic IP**.
 
 ### Configure Prod Vars    
 Now we are going to configure our prod.tfvars. 
+7. The region you wish to deploy to (must be in same region as **Elastic IP**)
 1. First add your a unique DB password that will be used for the RDS instance
 2. Next add the allocation_id from the EIP
 3. Add Personal access token
 4. Add Github username
 5. Name of existing Github repo
 6. An email address for Letsencrypt to use
-7. The region you wish to deploy to
+
 
 ### Let rip
 We are now ready to let things rip. 
