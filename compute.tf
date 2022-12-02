@@ -12,7 +12,6 @@ locals {
   })
 }
 
-
 data "aws_ami" "server_ami" {
   most_recent = true
 
@@ -82,32 +81,38 @@ resource "aws_instance" "srw_main" {
     Name = "srw-main-${random_id.srw_node_id[count.index].dec}"
   }
 
-  provisioner "local-exec" {
-    command = "printf '\n${self.public_ip}' >> aws_hosts && aws ec2 wait instance-status-ok --instance-ids ${self.id} --region ${var.region}"
-  }
+  # provisioner "local-exec" {
+  #   command = "printf '\n${self.public_ip}' >> aws_hosts && aws ec2 wait instance-status-ok --instance-ids ${self.id} --region ${var.region}"
+  # }
 
   provisioner "local-exec" {
     command = "printf '\nubuntu@${data.aws_eip.srw_eip.public_ip}' >> hosts.txt && aws ec2 wait instance-status-ok --instance-ids ${self.id} --region ${var.region}"
   }
 
+  # provisioner "local-exec" {
+  #   when    = destroy
+  #   command = "sed -i '/^[0-9]/d' aws_hosts && sed -i '/^[a-z0-9@]/d' hosts.txt"
+  # }
+
   provisioner "local-exec" {
     when    = destroy
-    command = "sed -i '/^[0-9]/d' aws_hosts && sed -i '/^[a-z0-9@]/d' hosts.txt"
+    command = "sed -i '/^[a-z0-9@]/d' hosts.txt"
   }
 
   depends_on = [aws_db_instance.srw_db]
+
 }
 
 resource "null_resource" "secure_server" {
-  depends_on = [aws_instance.srw_main, aws_eip_association.srw_eip_assoc]
-
+  depends_on = [aws_eip_association.srw_eip_assoc]
+  
   provisioner "local-exec" {
     command = "export ANSIBLE_HOST_KEY_CHECKING=False && ansible-playbook -i hosts.txt --key-file /home/ubuntu/.ssh/devops_rsa playbooks/secure_server.yml"
   }
 }
 
 resource "null_resource" "install_nginx" {
-  depends_on = [null_resource.secure_server, aws_eip_association.srw_eip_assoc]
+  depends_on = [null_resource.secure_server]
 
   provisioner "local-exec" {
     command = "ansible-playbook -i hosts.txt --key-file /home/ubuntu/.ssh/devops_rsa playbooks/install_nginx.yml"
@@ -115,7 +120,7 @@ resource "null_resource" "install_nginx" {
 }
 
 resource "null_resource" "install_php" {
-  depends_on = [null_resource.install_nginx, aws_eip_association.srw_eip_assoc]
+  depends_on = [null_resource.install_nginx]
 
   provisioner "local-exec" {
     command = "ansible-playbook -i hosts.txt --key-file /home/ubuntu/.ssh/devops_rsa playbooks/install_php.yml"
@@ -123,7 +128,7 @@ resource "null_resource" "install_php" {
 }
 
 resource "null_resource" "provision_ssl_certificates" {
-  depends_on = [null_resource.install_php, aws_eip_association.srw_eip_assoc]
+  depends_on = [null_resource.install_php]
 
   provisioner "local-exec" {
     command = "ansible-playbook -i hosts.txt --key-file /home/ubuntu/.ssh/devops_rsa playbooks/provision_ssl_certificates.yml --extra-vars '${local.ansible_vars}'"
@@ -131,14 +136,14 @@ resource "null_resource" "provision_ssl_certificates" {
 }
 
 resource "null_resource" "install_wordpress" {
-  depends_on = [null_resource.provision_ssl_certificates, aws_eip_association.srw_eip_assoc]
+  depends_on = [null_resource.provision_ssl_certificates]
 
   provisioner "local-exec" {
     command = "ansible-playbook -i hosts.txt --key-file /home/ubuntu/.ssh/devops_rsa playbooks/install_wordpress.yml --extra-vars '${local.ansible_vars}'"
   }
-  triggers = {
-    always_run = timestamp()
-  }
+  # triggers = {
+  #   always_run = timestamp()
+  # }
 }
 
 resource "aws_eip_association" "srw_eip_assoc" {
