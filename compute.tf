@@ -103,49 +103,49 @@ resource "aws_instance" "srw_main" {
 
 }
 
-resource "null_resource" "secure_server" {
+resource "null_resource" "main_playbook" {
   
   provisioner "local-exec" {
-    command = "export ANSIBLE_HOST_KEY_CHECKING=False && ansible-playbook -i hosts.txt --key-file /home/ubuntu/.ssh/devops_rsa playbooks/secure_server.yml"
+    command = "export ANSIBLE_HOST_KEY_CHECKING=False && ansible-playbook -i hosts.txt --key-file /home/ubuntu/.ssh/devops_rsa playbooks/main_playbook.yml"
   }
 
   depends_on = [aws_instance.srw_main]
 }
 
-resource "null_resource" "install_nginx" {
-  depends_on = [null_resource.secure_server]
+# resource "null_resource" "install_nginx" {
+#   depends_on = [null_resource.secure_server]
 
-  provisioner "local-exec" {
-    command = "export ANSIBLE_HOST_KEY_CHECKING=False && ansible-playbook -i hosts.txt --key-file /home/ubuntu/.ssh/devops_rsa playbooks/install_nginx.yml"
-  }
-}
+#   provisioner "local-exec" {
+#     command = "export ANSIBLE_HOST_KEY_CHECKING=False && ansible-playbook -i hosts.txt --key-file /home/ubuntu/.ssh/devops_rsa playbooks/install_nginx.yml"
+#   }
+# }
 
-resource "null_resource" "install_php" {
-  depends_on = [null_resource.install_nginx]
+# resource "null_resource" "install_php" {
+#   depends_on = [null_resource.install_nginx]
 
-  provisioner "local-exec" {
-    command = "export ANSIBLE_HOST_KEY_CHECKING=False && ansible-playbook -i hosts.txt --key-file /home/ubuntu/.ssh/devops_rsa playbooks/install_php.yml"
-  }
-}
+#   provisioner "local-exec" {
+#     command = "export ANSIBLE_HOST_KEY_CHECKING=False && ansible-playbook -i hosts.txt --key-file /home/ubuntu/.ssh/devops_rsa playbooks/install_php.yml"
+#   }
+# }
 
-resource "null_resource" "provision_ssl_certificates" {
-  depends_on = [null_resource.install_php]
+# resource "null_resource" "provision_ssl_certificates" {
+#   depends_on = [null_resource.install_php]
 
-  provisioner "local-exec" {
-    command = "export ANSIBLE_HOST_KEY_CHECKING=False && ansible-playbook -i hosts.txt --key-file /home/ubuntu/.ssh/devops_rsa playbooks/provision_ssl_certificates.yml --extra-vars '${local.ansible_vars}'"
-  }
-}
+#   provisioner "local-exec" {
+#     command = "export ANSIBLE_HOST_KEY_CHECKING=False && ansible-playbook -i hosts.txt --key-file /home/ubuntu/.ssh/devops_rsa playbooks/provision_ssl_certificates.yml --extra-vars '${local.ansible_vars}'"
+#   }
+# }
 
-resource "null_resource" "install_wordpress" {
-  depends_on = [null_resource.provision_ssl_certificates]
+# resource "null_resource" "install_wordpress" {
+#   depends_on = [null_resource.provision_ssl_certificates]
 
-  provisioner "local-exec" {
-    command = "export ANSIBLE_HOST_KEY_CHECKING=False && ansible-playbook -i hosts.txt --key-file /home/ubuntu/.ssh/devops_rsa playbooks/install_wordpress.yml --extra-vars '${local.ansible_vars}'"
-  }
-  # triggers = {
-  #   always_run = timestamp()
-  # }
-}
+#   provisioner "local-exec" {
+#     command = "export ANSIBLE_HOST_KEY_CHECKING=False && ansible-playbook -i hosts.txt --key-file /home/ubuntu/.ssh/devops_rsa playbooks/install_wordpress.yml --extra-vars '${local.ansible_vars}'"
+#   }
+#   # triggers = {
+#   #   always_run = timestamp()
+#   # }
+# }
 
 resource "aws_eip_association" "srw_eip_assoc" {
   count         = var.main_instance_count
