@@ -103,61 +103,40 @@ resource "aws_instance" "srw_main" {
 
 }
 
-resource "null_resource" "main_playbook" {
-  
-  provisioner "local-exec" {
-    command = "export ANSIBLE_HOST_KEY_CHECKING=False && ansible-playbook -i hosts.txt --key-file /home/ubuntu/.ssh/devops_rsa playbooks/main-playbook.yml -vvv"
+resource "null_resource" "ssh" {
+  count         = var.main_instance_count
+  provisioner "remote-exec" {
+    inline = ["touch upgrade.log && echo 'I sshd in' >> upgrade.log"]
+    connection {
+      type        = "ssh"
+      user        = "ubuntu"
+      private_key = file("/home/ubuntu/.ssh/devops_rsa")
+      host        = aws_instance.srw_main[count.index].public_ip
+    }
   }
 
   depends_on = [aws_instance.srw_main]
 }
 
-# resource "null_resource" "install_nginx" {
-#   depends_on = [null_resource.secure_server]
+resource "null_resource" "main_playbook" {
+  provisioner "local-exec" {
+    command = "export ANSIBLE_HOST_KEY_CHECKING=False && ansible-playbook -i hosts.txt --key-file /home/ubuntu/.ssh/devops_rsa playbooks/main-playbook.yml"
+  }
 
-#   provisioner "local-exec" {
-#     command = "export ANSIBLE_HOST_KEY_CHECKING=False && ansible-playbook -i hosts.txt --key-file /home/ubuntu/.ssh/devops_rsa playbooks/install_nginx.yml"
-#   }
-# }
+  depends_on = [null_resource.main_playbook]
+}
 
-# resource "null_resource" "install_php" {
-#   depends_on = [null_resource.install_nginx]
 
-#   provisioner "local-exec" {
-#     command = "export ANSIBLE_HOST_KEY_CHECKING=False && ansible-playbook -i hosts.txt --key-file /home/ubuntu/.ssh/devops_rsa playbooks/install_php.yml"
-#   }
-# }
-
-# resource "null_resource" "provision_ssl_certificates" {
-#   depends_on = [null_resource.install_php]
-
-#   provisioner "local-exec" {
-#     command = "export ANSIBLE_HOST_KEY_CHECKING=False && ansible-playbook -i hosts.txt --key-file /home/ubuntu/.ssh/devops_rsa playbooks/provision_ssl_certificates.yml --extra-vars '${local.ansible_vars}'"
-#   }
-# }
-
-# resource "null_resource" "install_wordpress" {
-#   depends_on = [null_resource.provision_ssl_certificates]
-
-#   provisioner "local-exec" {
-#     command = "export ANSIBLE_HOST_KEY_CHECKING=False && ansible-playbook -i hosts.txt --key-file /home/ubuntu/.ssh/devops_rsa playbooks/install_wordpress.yml --extra-vars '${local.ansible_vars}'"
-#   }
-#   # triggers = {
-#   #   always_run = timestamp()
-#   # }
-# }
+data "aws_eip" "srw_eip" {
+  id = var.allocation_id
+}
 
 resource "aws_eip_association" "srw_eip_assoc" {
   count         = var.main_instance_count
   instance_id   = aws_instance.srw_main[count.index].id
   allocation_id = data.aws_eip.srw_eip.id
-
-  depends_on = [aws_instance.srw_main]
 }
 
-data "aws_eip" "srw_eip" {
-  id = var.allocation_id
-}
 
 output "IP" {
   value = data.aws_eip.srw_eip.public_ip
