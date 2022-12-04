@@ -109,7 +109,8 @@ resource "null_resource" "ssh" {
     connection {
       type        = "ssh"
       user        = "ubuntu"
-      private_key = file("/home/ubuntu/.ssh/devops_rsa")
+      # private_key = file("/home/ubuntu/.ssh/devops_rsa")
+      private_key = file(var.private_key_path)
       host        = data.aws_eip.srw_eip.public_ip
     }
   }
