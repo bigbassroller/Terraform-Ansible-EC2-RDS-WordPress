@@ -49,3 +49,8 @@ We are now ready to let things rip.
 1. Ready, first run `terraform init` 
 2. Aim, test things out with a `terraform plan -var-file="prod.tfvars"`
 3. Fire! `terraform apply -auto-approve -var-file="prod.tfvars"`
+
+To run with debug:
+```bash
+export TF_LOG="DEBUG" TF_LOG_PATH="./debug" && terraform apply -auto-approve -var-file="prod.tfvars" 
+```
