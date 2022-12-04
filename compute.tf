@@ -115,7 +115,7 @@ resource "null_resource" "ssh" {
     }
   }
 
-  depends_on = [aws_eip_association.srw_eip_assoc]
+  # depends_on = [aws_eip_association.srw_eip_assoc]
 }
 
 # resource "null_resource" "main_playbook" {
